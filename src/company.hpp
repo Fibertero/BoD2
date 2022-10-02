@@ -17,7 +17,6 @@ public:
     Texture2D sprite;
     std::vector<Employee> Employees;
 
-
     Company(float _Money);
 
     void AddMoney(float _money);

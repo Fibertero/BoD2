@@ -14,12 +14,18 @@ target_sources(
     src/company.cpp
     src/days.cpp
     src/engine.cpp
+    src/city.cpp
+    src/store.cpp
+
 
     #Headers
     src/camera.hpp
     src/company.hpp
     src/days.hpp
     src/engine.hpp
+    src/city.hpp
+    src/store.hpp
+
     )
 
 target_link_libraries(${PROJECT_NAME} raylib)

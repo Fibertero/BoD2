@@ -3,12 +3,7 @@
 #include"stdio.h"
 #include"raylib.h"
 
-Company::Company(float _Money): Money(_Money){
-    Image img = LoadImage("../res/Worker.png");
-    ImageResize(&img, 50, 50);
-    sprite = LoadTextureFromImage(img);
-    UnloadImage(img);
-}
+Company::Company(float _Money): Money(_Money){}
 
 void Company::AddMoney(float _money){
     Money += _money;
