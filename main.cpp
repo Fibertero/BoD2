@@ -23,15 +23,17 @@ int main()
 {
     /*Init the gameWindow*/
     auto GameWindow = Window((Vector2){800,600}, "Game", 60);
-    ToggleFullscreen();   
+    //ToggleFullscreen();   
 
     /*Loading textures*/
-    std::vector<const char *> CityTex{"../res/store.png", "../res/roadH.png", "../res/roadV.png", "../res/forest.png"};
+    std::vector<const char *> CityTex{"../res/store.png", "../res/roadH.png", "../res/roadV.png", "../res/forest.png", "../res/motorbike.png", "../res/truck.png", "../res/plane.png"};
     std::vector<const char *> IndustryTex{"../res/worker.png", "../res/PlusWorker.png", "../res/wood.png"};
+    std::vector<const char *> StoreTex{"../res/carIcon.png"};
     std::vector<const char *> ForestTex{"../res/lumberjack.png"};
 
     auto CityTextures = GameloadTextures(CityTex);
     auto IndustryTextures = GameloadTextures(IndustryTex);
+    auto StoreTextures = GameloadTextures(StoreTex);
     auto ForestTextures = GameloadTextures(ForestTex);
 
     /*Init the game camera*/ 
@@ -45,14 +47,20 @@ int main()
 
     Timer DayTimer = {0,0};
     Timer* pTime = &DayTimer;
-    StartTimer(pTime, 20);
+    StartTimer(pTime, 24);
     /**/
 
     /*Init the game player*/
     auto MainCompany = Company(0.0f);
+    MainCompany.AddMoney(10000);
     MainCompany.sprite = IndustryTextures[0];
     Employee e1{1, 15, 30};
     MainCompany.AddEmployee(e1);
+    /**/
+
+    /*Init the player transport*/
+    auto MainVehicle = Vehicle(MOTORCYCLE);
+
 
     /*Loading the city/industry/store (GUI) contents*/
     Texture2D City = LoadTexture("../res/city.png");
@@ -61,7 +69,6 @@ int main()
 
 
     /*Creating itens*/
-    Item worker {5000, IndustryTextures[0], WorkerFunction};
     int WoodPrice = 30;
 
     /*Creating buttons/NPC's:*/
@@ -77,6 +84,11 @@ int main()
 
     while (!WindowShouldClose())
     {
+        if(MainVehicle.GetState())
+        {
+            MainVehicle.Listener();
+        }
+
         BeginDrawing();
             ClearBackground(ColorAlpha(BROWN, 0.5f));
             /*Drawing Money*/
@@ -129,18 +141,35 @@ int main()
                     Draws
                     */
 
+
                     /*Drawing the store image IN THE CITY*/
                     DrawTexture(CityTextures[0], 200, 300, WHITE);
                     /*Drawing the road*/
                     for(register int i{}; i<15 /*15 it's a magic number, and can be modified*/; i++){
-                        DrawTexture(CityTextures[1], (CityTextures[1].width*i)-550 /*-550 it's a magic number, and can be modified*/, StoreButton.y+50, WHITE);
+                        DrawTexture(CityTextures[1], (CityTextures[1].width*i) /*-550 it's a magic number, and can be modified*/, StoreButton.y+50, WHITE);
                         //DrawTexture(CityTextures[2], 300, (CityTextures[2].height*i-550)
                     }
                     /*Drawing the forest image IN THE CITY*/
                     DrawTexture(CityTextures[3], 0, 100, WHITE);
+                    
+
+                    /*Drawing the vehicle*/
+                    if(MainVehicle.GetState()){
+                        MainVehicle.Draw(((MainVehicle.GetVehicle()==MOTORCYCLE) ? CityTextures[4] : (MainVehicle.GetVehicle()==TRUCK) ? CityTextures[5] : CityTextures[6]), MainCompany.GetWoodPerDay());
+                    }
+                    
+
                     /*
                     Events
                     */
+                    if(CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), (Rectangle){MainVehicle.GetPos().x, MainVehicle.GetPos().y, 50, 50})){
+                        Color UpgradeCostColor = (MainCompany.GetMoney() >= 10000/*Upgrade vehicle price*/) ? GREEN : RED;
+                        DrawRectangle(MainVehicle.GetPos().x-20, MainVehicle.GetPos().y-40, 160, 100, ColorAlpha(GRAY, 0.5f));
+                        DrawText("Upgrade: US$10,000", MainVehicle.GetPos().x-20, MainVehicle.GetPos().y-40, 15, UpgradeCostColor);
+                        DrawText(("Capacity: " + std::to_string(MainVehicle.GetCapacity()*2)).c_str(), MainVehicle.GetPos().x-20, MainVehicle.GetPos().y, 15, BLUE);
+
+                        if(IsMouseButtonPressed(0)){ MainVehicle.UpgradeVehicle(); MainVehicle.AddCapacity(MainVehicle.GetCapacity()*2); MainCompany.RemoveMoney(10000);}
+                    }
                     if(CheckCollisionPointRec(GetMousePosition(), SwitchWorld) && IsMouseButtonPressed(0)){
                         GameState = COMPANY;
                     }
@@ -164,6 +193,7 @@ int main()
                        GameState = CITY;
                     }
                     break;
+
                     case FOREST:
                     /*
                     Draws
@@ -182,8 +212,11 @@ int main()
                     if(CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), LumberjackRec)){
                         DrawRectangle(300, 400, 500, 40, ColorAlpha(GRAY, 0.5f));
                         DrawText(("You are reciving " + std::to_string(MainCompany.GetWoodPerDay()) + " woods per day, for US$" + std::to_string(MainCompany.GetWoodPerDay()*WoodPrice) ).c_str() , 300, 400, 20, WHITE);
-                        if(IsMouseButtonPressed(0)){
+                        if(IsMouseButtonPressed(0) && MainVehicle.GetCapacity() > MainCompany.GetWoodPerDay()){
                             MainCompany.AddWoodPerDay(1);
+                        }
+                        else if (IsMouseButtonPressed(1)){
+                            MainCompany.AddWoodPerDay(-1);
                         }
                     }
                     break;
@@ -206,15 +239,23 @@ int main()
                         MainCompany.RemoveMoney(MainCompany.GetWoodPerDay()*WoodPrice /*30 is the starter price of wood*/);
                         /*Up the level of all employees*/
                         MainCompany.Employees[i].Level += 1;
+
+                        MainVehicle.SetState(true);
                     }
-                    StartTimer(pTime, 20);
+                    StartTimer(pTime, 24);
+                }
+
+                if(CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), (Rectangle){0,0,10,10})){
+                    DrawRectangle(0,0,50,50,WHITE);
                 }
                 /**/
                 
                 /*Camera Update*/
-                if(IsMouseButtonDown(1)){
-                    camera.target = GetMousePosition();
-                }
+                if(IsKeyDown(KEY_A)) camera.target.x -= 1;
+                if(IsKeyDown(KEY_D)) camera.target.x += 1;
+                if(IsKeyDown(KEY_W)) camera.target.y -= 1;
+                if(IsKeyDown(KEY_S)) camera.target.y += 1;
+                
                 /**/
                 
             EndMode2D();

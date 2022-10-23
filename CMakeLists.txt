@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(my_project)
+project(main)
 
 find_package(raylib 3.0 REQUIRED) # Requires at least version 3.0
 
@@ -16,7 +16,7 @@ target_sources(
     src/engine.cpp
     src/city.cpp
     src/store.cpp
-
+    src/vehicle.cpp
 
     #Headers
     src/camera.hpp
@@ -25,6 +25,7 @@ target_sources(
     src/engine.hpp
     src/city.hpp
     src/store.hpp
+    src/vehicle.hpp
 
     )
 

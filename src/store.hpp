@@ -6,12 +6,14 @@ The Store it's working now!
 #include"raylib.h"
 #include"company.hpp"
 #include<iostream>
+#include"vehicle.hpp"
 
 typedef struct
 {
     float price;
     Texture2D sprite;
-    void (*itemFunc)(Company MainCompany);
+    void (*itemFunc)(Vehicle _vehicle);
+    Vehicle v;
     void Listen(Vector2 pos, Company MainCompany, Camera2D camera);
 } Item;
 
@@ -19,4 +21,3 @@ typedef struct
 /*
                     Itens
 */
-void WorkerFunction(Company MainCompany);
