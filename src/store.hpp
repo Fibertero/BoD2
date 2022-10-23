@@ -12,7 +12,7 @@ typedef struct
     float price;
     Texture2D sprite;
     void (*itemFunc)(Company MainCompany);
-    void Listen(Vector2 pos, Company MainCompany);
+    void Listen(Vector2 pos, Company MainCompany, Camera2D camera);
 } Item;
 
 

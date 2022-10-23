@@ -1,4 +1,4 @@
-#include"raylib/src/raylib.h"
+#include"raylib.h"
 
 Camera2D CreateCamera(Vector2 _target, Vector2 _offset, float _rotation, float _zoom)
 {

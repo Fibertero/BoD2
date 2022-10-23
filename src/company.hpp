@@ -13,6 +13,8 @@ typedef struct{
 class Company{
 private:
     float Money;
+    int Wood;
+    int WoodPerDay;
 public:
     Texture2D sprite;
     std::vector<Employee> Employees;
@@ -21,6 +23,14 @@ public:
 
     void AddMoney(float _money);
     void RemoveMoney(float _money);
-    void AddEmployee(Employee _employee);
     float GetMoney();
+
+    void AddEmployee(Employee _employee);
+
+    void AddWood(int _wood);
+    void RemoveWood(int _wood);
+    int GetWood();
+
+    void AddWoodPerDay(int _amount);
+    int GetWoodPerDay();
 };
