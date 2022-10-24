@@ -45,7 +45,7 @@ int main()
     Camera2D camera = CreateCamera(GetMousePosition(), (Vector2){GameWindow.GetX(), GameWindow.GetY()}, 0.0f, 1.0f);
 
     /*Init the days counter*/
-    Image WatchImg = LoadImage("../res/Images/relogio.png");
+    Image WatchImg = LoadImage("../res/Images/watch.png");
     ImageResize(&WatchImg, 65, 65);
     Texture2D WatchTex = LoadTextureFromImage(WatchImg);
     UnloadImage(WatchImg);
