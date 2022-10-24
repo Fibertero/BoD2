@@ -24,7 +24,7 @@ int main()
 {
     /*Init the gameWindow*/
     auto GameWindow = Window((Vector2){800,600}, "Game", 60);
-    //ToggleFullscreen();   
+    ToggleFullscreen();   
 
     /*Audio init*/
     InitAudioSystem(50);
