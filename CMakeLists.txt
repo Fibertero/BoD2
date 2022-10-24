@@ -17,6 +17,7 @@ target_sources(
     src/city.cpp
     src/store.cpp
     src/vehicle.cpp
+    src/audio.cpp
 
     #Headers
     src/camera.hpp
@@ -26,6 +27,7 @@ target_sources(
     src/city.hpp
     src/store.hpp
     src/vehicle.hpp
+    src/audio.hpp
 
     )
 

@@ -4,7 +4,7 @@
 #define MINIMUM_VEHICLE_CAPACITY 10
 
 typedef enum{
-    MOTORCYCLE=1,
+    MOTORCYCLE=0,
     TRUCK,
     PLANE
 

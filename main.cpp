@@ -3,6 +3,7 @@
 #include"src/engine.hpp"
 #include"src/city.hpp"
 #include"src/store.hpp"
+#include"src/audio.hpp"
 #include<iostream>
 #define PLAYER_PATCH "res/player.png"
 
@@ -25,11 +26,15 @@ int main()
     auto GameWindow = Window((Vector2){800,600}, "Game", 60);
     //ToggleFullscreen();   
 
+    /*Audio init*/
+    InitAudioSystem(50);
+    std::vector<const char *> GameSounds{"../res/Sounds/motorcycle.wav", "../res/Sounds/truck.wav", "../res/Sounds/airplane.wav", "../res/Sounds/main_theme.mp3"};
+
     /*Loading textures*/
-    std::vector<const char *> CityTex{"../res/store.png", "../res/roadH.png", "../res/roadV.png", "../res/forest.png", "../res/motorbike.png", "../res/truck.png", "../res/plane.png"};
-    std::vector<const char *> IndustryTex{"../res/worker.png", "../res/PlusWorker.png", "../res/wood.png"};
-    std::vector<const char *> StoreTex{"../res/carIcon.png"};
-    std::vector<const char *> ForestTex{"../res/lumberjack.png"};
+    std::vector<const char *> CityTex{"../res/Images/store.png", "../res/Images/roadH.png", "../res/Images/roadV.png", "../res/Images/forest.png", "../res/Images/motorbike.png", "../res/Images/truck.png", "../res/Images/plane.png"};
+    std::vector<const char *> IndustryTex{"../res/Images/worker.png", "../res/Images/PlusWorker.png", "../res/Images/wood.png"};
+    std::vector<const char *> StoreTex{"../res/Images/carIcon.png"};
+    std::vector<const char *> ForestTex{"../res/Images/lumberjack.png"};
 
     auto CityTextures = GameloadTextures(CityTex);
     auto IndustryTextures = GameloadTextures(IndustryTex);
@@ -40,7 +45,7 @@ int main()
     Camera2D camera = CreateCamera(GetMousePosition(), (Vector2){GameWindow.GetX(), GameWindow.GetY()}, 0.0f, 1.0f);
 
     /*Init the days counter*/
-    Image WatchImg = LoadImage("../res/relogio.png");
+    Image WatchImg = LoadImage("../res/Images/relogio.png");
     ImageResize(&WatchImg, 65, 65);
     Texture2D WatchTex = LoadTextureFromImage(WatchImg);
     UnloadImage(WatchImg);
@@ -63,9 +68,9 @@ int main()
 
 
     /*Loading the city/industry/store (GUI) contents*/
-    Texture2D City = LoadTexture("../res/city.png");
-    Texture2D Industry = LoadTexture("../res/industry.png");
-    Texture2D Store = LoadTexture("../res/store.png");
+    Texture2D City = LoadTexture("../res/Images/city.png");
+    Texture2D Industry = LoadTexture("../res/Images/industry.png");
+    Texture2D Store = LoadTexture("../res/Images/store.png");
 
 
     /*Creating itens*/
@@ -241,6 +246,7 @@ int main()
                         MainCompany.Employees[i].Level += 1;
 
                         MainVehicle.SetState(true);
+                        PlayAudio(GameSounds[(MainVehicle.GetVehicle())]);
                     }
                     StartTimer(pTime, 24);
                 }
