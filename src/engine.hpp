@@ -12,3 +12,13 @@ public:
     int GetFPS();
     const char *GetTitle();
 };
+
+typedef enum
+{
+    MENU=0,
+    OPTIONS,
+    COMPANY,
+    CITY,
+    STORE,
+    FOREST
+} GameStates;

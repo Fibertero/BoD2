@@ -1,7 +1,7 @@
 #include"raylib.h"
 #include"src/camera.hpp"
-#include"src/engine.hpp"
-#include"src/city.hpp"
+#include"src/menu.hpp"
+#include"src/textures.hpp"
 #include"src/store.hpp"
 #include"src/audio.hpp"
 #include<iostream>
@@ -10,13 +10,7 @@
 /*
 Basic config
 */
-typedef enum
-{
-    COMPANY=0,
-    CITY,
-    STORE,
-    FOREST
-} GameStates;
+
 
 GameStates GameState = COMPANY; 
 
@@ -26,13 +20,9 @@ int main()
     auto GameWindow = Window((Vector2){800,600}, "Game", 60);
     ToggleFullscreen();   
 
-    /*Audio init*/
-    InitAudioSystem(50);
-    std::vector<const char *> GameSounds{"../res/Sounds/motorcycle.wav", "../res/Sounds/truck.wav", "../res/Sounds/airplane.wav", "../res/Sounds/main_theme.mp3"};
-
     /*Loading textures*/
     std::vector<const char *> CityTex{"../res/Images/store.png", "../res/Images/roadH.png", "../res/Images/roadV.png", "../res/Images/forest.png", "../res/Images/motorbike.png", "../res/Images/truck.png", "../res/Images/plane.png"};
-    std::vector<const char *> IndustryTex{"../res/Images/worker.png", "../res/Images/PlusWorker.png", "../res/Images/wood.png"};
+    std::vector<const char *> IndustryTex{"../res/Images/worker.png", "../res/Images/PlusWorker.png", "../res/Images/wood.png", "../res/Images/config.png"};
     std::vector<const char *> StoreTex{"../res/Images/carIcon.png"};
     std::vector<const char *> ForestTex{"../res/Images/lumberjack.png"};
 
@@ -51,9 +41,13 @@ int main()
     UnloadImage(WatchImg);
 
     Timer DayTimer = {0,0};
-    Timer* pTime = &DayTimer;
-    StartTimer(pTime, 24);
+    StartTimer(DayTimer, 24);
     /**/
+
+    /*Audio system*/
+    float GlobalVolume = 0.5f;
+    InitAudioSystem(GlobalVolume);
+    std::vector<Sound> GameSounds{LoadSound("../res/Sounds/motorcycle.wav"), LoadSound("../res/Sounds/truck.wav"), LoadSound("../res/Sounds/airplane.wav"), LoadSound("../res/Sounds/main_theme.mp3")};
 
     /*Init the game player*/
     auto MainCompany = Company(0.0f);
@@ -86,6 +80,8 @@ int main()
     Rectangle ForestButton = {0, 100, CityTextures[3].width, CityTextures[3].height};
     /*Lumberjack rectangle*/
     Rectangle LumberjackRec = {GameWindow.GetX()/2, GameWindow.GetY()/2, ForestTextures[0].width, ForestTextures[0].height};
+    
+    PlaySound(GameSounds[3]);
 
     while (!WindowShouldClose())
     {
@@ -94,22 +90,34 @@ int main()
             MainVehicle.Listener();
         }
 
+
+        SetMasterVolume(GlobalVolume);
+
         BeginDrawing();
             ClearBackground(ColorAlpha(BROWN, 0.5f));
-            /*Drawing Money*/
-            DrawText((std::to_string((int)MainCompany.GetMoney()).c_str()), 600, 30, 30, GREEN);
-            /*Drawing Wood*/
-            DrawTexture(IndustryTextures[2], 250, 10, WHITE);
-            DrawText(std::to_string(MainCompany.GetWood()).c_str(), 250, IndustryTextures[2].height+10, 20, BLACK);
-            /*Drawing day time*/
-            DrawText((std::to_string(static_cast<int> (GetElapsed(*pTime)))).c_str(), 25, 30, 30, WHITE);
-            DrawTexture(WatchTex, 5, 10, WHITE);
+            if(GameState!=MENU){
+                /*Drawing Money*/
+                DrawText((std::to_string((int)MainCompany.GetMoney()).c_str()), 600, 30, 30, GREEN);
+                /*Drawing Wood*/
+                DrawTexture(IndustryTextures[2], 250, 10, WHITE);
+                DrawText(std::to_string(MainCompany.GetWood()).c_str(), 250, IndustryTextures[2].height+10, 20, BLACK);
+                /*Drawing day time*/
+                DrawText((std::to_string(static_cast<int> (GetElapsed(DayTimer)))).c_str(), 25, 30, 30, WHITE);
+                DrawTexture(WatchTex, 5, 10, WHITE);
+                /*Drawing the configure button*/
+                DrawConfigureIcon(IndustryTextures[3], (Vector2){GameWindow.GetX()-70, 20}, GameState);
+            }
             /*Drawing the city && industry button*/
             if(GameState==COMPANY || GameState==STORE || GameState==FOREST){
                 DrawTexture(City, 0, 400, WHITE);
             }
             else if(GameState==CITY){
                 DrawTexture(Industry, 0, 400, WHITE);
+            }
+            else if(GameState==MENU){
+                ClearBackground(GRAY);
+                DrawResumeButton((Rectangle){GameWindow.GetX()/2-50, GameWindow.GetY()/2-100, 110, 50}, GameState);
+                DrawVolume((Rectangle){10, 10, 100, 50}, GlobalVolume);
             }
 
             BeginMode2D(camera);
@@ -152,7 +160,6 @@ int main()
                     /*Drawing the road*/
                     for(register int i{}; i<15 /*15 it's a magic number, and can be modified*/; i++){
                         DrawTexture(CityTextures[1], (CityTextures[1].width*i) /*-550 it's a magic number, and can be modified*/, StoreButton.y+50, WHITE);
-                        //DrawTexture(CityTextures[2], 300, (CityTextures[2].height*i-550)
                     }
                     /*Drawing the forest image IN THE CITY*/
                     DrawTexture(CityTextures[3], 0, 100, WHITE);
@@ -162,7 +169,6 @@ int main()
                     if(MainVehicle.GetState()){
                         MainVehicle.Draw(((MainVehicle.GetVehicle()==MOTORCYCLE) ? CityTextures[4] : (MainVehicle.GetVehicle()==TRUCK) ? CityTextures[5] : CityTextures[6]), MainCompany.GetWoodPerDay());
                     }
-                    
 
                     /*
                     Events
@@ -229,7 +235,7 @@ int main()
                 /**/
 
                 /*Updating the days*/
-                if(TimerDone(*pTime)){
+                if(TimerDone(DayTimer)){
                     for(std::size_t i{}; i<MainCompany.Employees.size(); i++){
                         /*Pay the workers*/
                         MainCompany.RemoveMoney(MainCompany.Employees[i].Wage);
@@ -246,9 +252,9 @@ int main()
                         MainCompany.Employees[i].Level += 1;
 
                         MainVehicle.SetState(true);
-                        PlayAudio(GameSounds[(MainVehicle.GetVehicle())]);
+                        PlaySound(GameSounds[MainVehicle.GetVehicle()]);
                     }
-                    StartTimer(pTime, 24);
+                    StartTimer(DayTimer, 24);
                 }
 
                 if(CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(), camera), (Rectangle){0,0,10,10})){
@@ -267,6 +273,11 @@ int main()
             EndMode2D();
         EndDrawing();
     }
+    GameUnloadTextures(CityTextures);
+    GameUnloadTextures(IndustryTextures);
+    GameUnloadTextures(StoreTextures);
+    GameUnloadTextures(ForestTextures);
+
     CloseWindow();
     
 }

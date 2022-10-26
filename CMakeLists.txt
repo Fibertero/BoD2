@@ -14,20 +14,22 @@ target_sources(
     src/company.cpp
     src/days.cpp
     src/engine.cpp
-    src/city.cpp
+    src/textures.cpp
     src/store.cpp
     src/vehicle.cpp
     src/audio.cpp
+    src/menu.cpp
 
     #Headers
     src/camera.hpp
     src/company.hpp
     src/days.hpp
     src/engine.hpp
-    src/city.hpp
+    src/textures.hpp
     src/store.hpp
     src/vehicle.hpp
     src/audio.hpp
+    src/menu.hpp
 
     )
 

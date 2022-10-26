@@ -1,10 +1,10 @@
 #include"days.hpp"
 #include"raylib.h"
 
-void StartTimer(Timer* timer, double lifetime)
+void StartTimer(Timer& timer, double lifetime)
 {
-    timer->startTime = GetTime();
-    timer->lifeTime = lifetime;
+    timer.startTime = GetTime();
+    timer.lifeTime = lifetime;
 }
 bool TimerDone(Timer timer)
 {

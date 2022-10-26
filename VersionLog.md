@@ -5,3 +5,5 @@
 >**0.1.1.2:** Added vehicles upgrade
 
 - **0.2:**  `Audio Update -` Added Audio Loading System; Added vehicles engines sounds;
+
+- **0.3:** `Menu Update(not completed) -` Added basic menu system(resume button and volume configure);

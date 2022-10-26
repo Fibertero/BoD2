@@ -2,6 +2,7 @@
 
 Vehicle::Vehicle(Vehicles _vehicle):vehicle(_vehicle)
 {
+    isActive = true;
     timer = 24.0f;
     Level = 1;
     switch(vehicle)

@@ -1,7 +1,5 @@
 #include"audio.hpp"
 
-
-
 void InitAudioSystem(int Volume){
     InitAudioDevice();
     SetMasterVolume(Volume);
