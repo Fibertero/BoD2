@@ -1,6 +1,5 @@
 #include"raylib.h"
 
-
 typedef struct Timer {
     double startTime;   // Start time (seconds)
     double lifeTime;    // Lifetime (seconds)

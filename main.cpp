@@ -18,7 +18,6 @@ int main()
 {
     /*Init the gameWindow*/
     auto GameWindow = Window((Vector2){800,600}, "Game", 60);
-    ToggleFullscreen();   
 
     /*Loading textures*/
     std::vector<const char *> CityTex{"../res/Images/store.png", "../res/Images/roadH.png", "../res/Images/roadV.png", "../res/Images/forest.png", "../res/Images/motorbike.png", "../res/Images/truck.png", "../res/Images/plane.png"};
@@ -71,6 +70,8 @@ int main()
     int WoodPrice = 30;
 
     /*Creating buttons/NPC's:*/
+    //None
+
 
     /*Defines the button that change the game state(Store, City etc)*/
     Rectangle SwitchWorld = {0, 400, 50, 50};
@@ -85,11 +86,18 @@ int main()
 
     while (!WindowShouldClose())
     {
+        /*Loop Checks*/
+
         if(MainVehicle.GetState())
         {
             MainVehicle.Listener();
         }
 
+        if(MainCompany.GetMoney()<0)
+        {
+            exit(1);
+        }
+        /**/
 
         SetMasterVolume(GlobalVolume);
 
@@ -107,7 +115,7 @@ int main()
                 /*Drawing the configure button*/
                 DrawConfigureIcon(IndustryTextures[3], (Vector2){GameWindow.GetX()-70, 20}, GameState);
             }
-            /*Drawing the city && industry button*/
+            /*Drawing the city && industry button && menu*/
             if(GameState==COMPANY || GameState==STORE || GameState==FOREST){
                 DrawTexture(City, 0, 400, WHITE);
             }
@@ -117,6 +125,7 @@ int main()
             else if(GameState==MENU){
                 ClearBackground(GRAY);
                 DrawResumeButton((Rectangle){GameWindow.GetX()/2-50, GameWindow.GetY()/2-100, 110, 50}, GameState);
+                DrawLeaveButton((Rectangle){GameWindow.GetX()/2-50, GameWindow.GetY()/2, 110, 50});
                 DrawVolume((Rectangle){10, 10, 100, 50}, GlobalVolume);
             }
 
@@ -158,7 +167,7 @@ int main()
                     /*Drawing the store image IN THE CITY*/
                     DrawTexture(CityTextures[0], 200, 300, WHITE);
                     /*Drawing the road*/
-                    for(register int i{}; i<15 /*15 it's a magic number, and can be modified*/; i++){
+                    for(register int i{}; i<15 /*15 it's a "magic number", and can be modified*/; i++){
                         DrawTexture(CityTextures[1], (CityTextures[1].width*i) /*-550 it's a magic number, and can be modified*/, StoreButton.y+50, WHITE);
                     }
                     /*Drawing the forest image IN THE CITY*/
