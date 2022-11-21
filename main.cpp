@@ -2,6 +2,7 @@
 #include"src/camera.hpp"
 #include"src/menu.hpp"
 #include"src/textures.hpp"
+#include"src/days.hpp"
 #include"src/store.hpp"
 #include"src/audio.hpp"
 #include<iostream>
@@ -18,7 +19,6 @@ int main()
 {
     /*Init the gameWindow*/
     auto GameWindow = Window((Vector2){800,600}, "Game", 60);
-    ToggleFullscreen();   
 
     /*Loading textures*/
     std::vector<const char *> CityTex{"../res/Images/store.png", "../res/Images/roadH.png", "../res/Images/roadV.png", "../res/Images/forest.png", "../res/Images/motorbike.png", "../res/Images/truck.png", "../res/Images/plane.png"};
@@ -43,6 +43,9 @@ int main()
     Timer DayTimer = {0,0};
     StartTimer(DayTimer, 24);
     /**/
+    
+    /*Configuring global message*/
+    GlobalMessage globalMessage = {"", WHITE};
 
     /*Audio system*/
     float GlobalVolume = 0.5f;
@@ -71,6 +74,8 @@ int main()
     int WoodPrice = 30;
 
     /*Creating buttons/NPC's:*/
+    //None
+
 
     /*Defines the button that change the game state(Store, City etc)*/
     Rectangle SwitchWorld = {0, 400, 50, 50};
@@ -80,21 +85,28 @@ int main()
     Rectangle ForestButton = {0, 100, CityTextures[3].width, CityTextures[3].height};
     /*Lumberjack rectangle*/
     Rectangle LumberjackRec = {GameWindow.GetX()/2, GameWindow.GetY()/2, ForestTextures[0].width, ForestTextures[0].height};
-    
-    PlaySound(GameSounds[3]);
 
     while (!WindowShouldClose())
     {
+
+        /*Loop Checks*/
+
         if(MainVehicle.GetState())
         {
             MainVehicle.Listener();
         }
 
+        if(MainCompany.GetMoney()<0)
+        {
+            globalMessage.SetInfo("You have no money for do that.", WARNING_MESSAGE);
+        }
+        /**/
 
         SetMasterVolume(GlobalVolume);
 
         BeginDrawing();
             ClearBackground(ColorAlpha(BROWN, 0.5f));
+
             if(GameState!=MENU){
                 /*Drawing Money*/
                 DrawText((std::to_string((int)MainCompany.GetMoney()).c_str()), 600, 30, 30, GREEN);
@@ -107,7 +119,7 @@ int main()
                 /*Drawing the configure button*/
                 DrawConfigureIcon(IndustryTextures[3], (Vector2){GameWindow.GetX()-70, 20}, GameState);
             }
-            /*Drawing the city && industry button*/
+            /*Drawing the city && industry button && menu*/
             if(GameState==COMPANY || GameState==STORE || GameState==FOREST){
                 DrawTexture(City, 0, 400, WHITE);
             }
@@ -117,8 +129,10 @@ int main()
             else if(GameState==MENU){
                 ClearBackground(GRAY);
                 DrawResumeButton((Rectangle){GameWindow.GetX()/2-50, GameWindow.GetY()/2-100, 110, 50}, GameState);
+                DrawLeaveButton((Rectangle){GameWindow.GetX()/2-50, GameWindow.GetY()/2, 110, 50});
                 DrawVolume((Rectangle){10, 10, 100, 50}, GlobalVolume);
             }
+
 
             BeginMode2D(camera);
                 switch(GameState){
@@ -158,7 +172,7 @@ int main()
                     /*Drawing the store image IN THE CITY*/
                     DrawTexture(CityTextures[0], 200, 300, WHITE);
                     /*Drawing the road*/
-                    for(register int i{}; i<15 /*15 it's a magic number, and can be modified*/; i++){
+                    for(register int i{}; i<15 /*15 it's a "magic number", and can be modified*/; i++){
                         DrawTexture(CityTextures[1], (CityTextures[1].width*i) /*-550 it's a magic number, and can be modified*/, StoreButton.y+50, WHITE);
                     }
                     /*Drawing the forest image IN THE CITY*/
@@ -179,7 +193,18 @@ int main()
                         DrawText("Upgrade: US$10,000", MainVehicle.GetPos().x-20, MainVehicle.GetPos().y-40, 15, UpgradeCostColor);
                         DrawText(("Capacity: " + std::to_string(MainVehicle.GetCapacity()*2)).c_str(), MainVehicle.GetPos().x-20, MainVehicle.GetPos().y, 15, BLUE);
 
-                        if(IsMouseButtonPressed(0)){ MainVehicle.UpgradeVehicle(); MainVehicle.AddCapacity(MainVehicle.GetCapacity()*2); MainCompany.RemoveMoney(10000);}
+                        if(IsMouseButtonPressed(0)){
+                            /*Check if player have money to do that*/ 
+                            if((MainCompany.GetMoney()-10000)>=0){
+                                MainVehicle.UpgradeVehicle(); 
+                                MainVehicle.AddCapacity(MainVehicle.GetCapacity()*2); 
+                                MainCompany.RemoveMoney(10000);
+                            }
+                            else{
+                                globalMessage.SetInfo("You have no money for do that.", WARNING_MESSAGE);
+                            }
+                        }
+
                     }
                     if(CheckCollisionPointRec(GetMousePosition(), SwitchWorld) && IsMouseButtonPressed(0)){
                         GameState = COMPANY;
@@ -271,6 +296,11 @@ int main()
                 /**/
                 
             EndMode2D();
+            if(globalMessage.text!=""){
+                globalMessage.DrawMessage();
+
+            }
+
         EndDrawing();
     }
     GameUnloadTextures(CityTextures);

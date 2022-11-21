@@ -20,6 +20,16 @@ void DrawResumeButton(Rectangle rec, GameStates &gs)
         gs = CITY;
     }
 }
+
+void DrawLeaveButton(Rectangle rec)
+{
+    DrawRectangle(rec.x, rec.y, rec.width, rec.height, RED);
+    DrawText("Exit to \ndesktop", rec.x, rec.y, 20, BLACK);
+    if(CheckCollisionPointRec(GetMousePosition(), rec) && IsMouseButtonPressed(0)){
+        exit(0);
+    }
+}
+
 void DrawVolume(Rectangle rec, float& GlobalVolume)
 {
     DrawText(("Volume: " + std::to_string(static_cast<int>(GlobalVolume*10))).c_str(), rec.x, rec.y, 20, WHITE);
@@ -31,4 +41,3 @@ void DrawVolume(Rectangle rec, float& GlobalVolume)
     }
 
 }
-void DrawLeaveButton(Rectangle rec);

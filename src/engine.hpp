@@ -1,4 +1,9 @@
+/*
+Engine file is the same as "globalFunctions.(cpp/hpp)"
+*/
+
 #include"raylib.h"
+#define WARNING_MESSAGE RED
 
 class Window{
 private:
@@ -22,3 +27,14 @@ typedef enum
     STORE,
     FOREST
 } GameStates;
+
+
+typedef struct
+{
+    const char *text;
+    Color textColor;
+    bool isActive;
+    void SetInfo(const char *_text, Color _textColor);
+    void DrawMessage();
+    void Undefine();
+}GlobalMessage;
